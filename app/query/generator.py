@@ -110,13 +110,16 @@ class AnswerGenerator:
         Generate a grounded answer from *context_chunks* for the given *query*.
 
         Returns:
-            answer      – natural language answer string
-            sources     – deduplicated list of source URLs cited
-            confidence  – "high" | "partial" | "not_found"
+            answer            – natural language answer string
+            sources           – deduplicated list of source URLs cited
+            confidence        – "high" | "partial" | "not_found"
         """
         client = self._get_client()
 
+        logger.info("generator.generate.start", query=query, num_chunks=len(context_chunks))
+
         if not context_chunks:
+            logger.info("generator.generate.no_chunks")
             return {
                 "answer": "I could not find a confident answer in the knowledge base.",
                 "sources": [],
@@ -125,6 +128,8 @@ class AnswerGenerator:
 
         context_block = self._build_context_block(context_chunks)
         user_message = f"{context_block}\n\n## Question\n{query}"
+        
+        logger.info("generator.generate.context", context_block=context_block)
 
         response = await client.chat.completions.create(
             model=self._get_chat_model(),

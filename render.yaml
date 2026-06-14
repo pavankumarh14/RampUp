@@ -12,6 +12,7 @@ services:
         - pyproject.toml
         - uv.lock
         - generate_sample_dataset.py
+        - start_app.py
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -21,6 +22,10 @@ services:
         value: groq
       - key: GROQ_EMBEDDING_PROVIDER
         value: gemini
+      - key: LOAD_SAMPLE_DATA
+        value: true
+      - key: RESET_DB
+        value: false
       - key: AZURE_OPENAI_ENDPOINT
         sync: false
       - key: AZURE_OPENAI_API_KEY

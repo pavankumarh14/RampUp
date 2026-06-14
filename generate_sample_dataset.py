@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import os
 from pathlib import Path
 
 # Add the project root to the path so we can import our app modules
@@ -9,7 +10,7 @@ from app.core.database import db_manager
 from app.core.orm import build_session_maker, DocumentChunk
 from app.ingestion.chunker import text_chunker
 from app.ingestion.embedder import embedding_service
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -90,26 +91,53 @@ Monday-Friday, 8 AM-6 PM PST.
         "source_url": "https://teams.microsoft.com/l/meeting/transcript/abc123",
         "source_type": "teams",
         "title": "Q1 All-Hands Meeting – Engineering Transcript"
+    },
+    {
+        "text": """
+Contoso Engineering Team Structure
+
+Engineering Leadership:
+- VP of Engineering: Alex Chen
+- Engineering Manager (EM) for Web Platform: Priya Patel
+- Engineering Manager (EM) for Data Platform: David Kim
+- Tech Lead for Core Services: Maria Rodriguez
+
+Teams:
+- Web Platform Team: 8 engineers, builds customer-facing web apps
+- Data Platform Team: 6 engineers, builds data pipelines and analytics
+- Core Services Team: 4 engineers, builds shared infrastructure and APIs
+- DevOps/Infrastructure Team: 3 engineers, manages deployments and cloud resources
+
+Org Chart:
+All engineering teams report to their respective EMs, who report to the VP of Engineering.
+        """.strip(),
+        "source_url": "https://contoso.sharepoint.com/sites/eng/Documents/Engineering_Org_Structure_2024.pdf",
+        "source_type": "sharepoint",
+        "title": "Engineering Team Structure 2024"
     }
 ]
 
 
 async def main():
     print("🚀 Starting sample dataset generation...")
+    reset_db = os.getenv("RESET_DB", "false").lower() == "true"
 
     # Initialize DB
     await db_manager.initialize()
     session_factory = build_session_maker()
 
     async with session_factory() as session:
+        if reset_db:
+            print("🗑️ Deleting all existing document chunks...")
+            await session.execute(delete(DocumentChunk))
+            await session.commit()
+
         # Check if we already have chunks
         existing = await session.execute(select(DocumentChunk).limit(1))
         if existing.scalar_one_or_none():
-            print("⚠️ Found existing document chunks!")
-            response = input("Do you want to continue and add more samples? (y/N): ").strip().lower()
-            if response != 'y':
-                print("✅ Exiting without changes.")
-                return
+            print("⚠️ Found existing document chunks, skipping ingestion!")
+            print("   To reset and re-ingest, set RESET_DB=true and run again.")
+            return
 
         # Process each document
         total_chunks = 0

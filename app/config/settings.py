@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     # App behaviour
     APP_ENV: str = "development"
     TOP_K_RESULTS: int = 5
-    SIMILARITY_THRESHOLD: float = 0.5
+    SIMILARITY_THRESHOLD: float = 0.2
     CHUNK_SIZE: int = 512
     CHUNK_OVERLAP: int = 64
     EMBEDDING_DIMENSION: int = 3072
