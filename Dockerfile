@@ -24,8 +24,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy uv and dependencies from builder
-COPY --from=builder /usr/local/bin/uv /usr/local/bin/uv
+# Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
 
 # Copy application code

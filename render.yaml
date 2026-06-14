@@ -10,7 +10,7 @@ services:
         - app/**
         - pyproject.toml
         - uv.lock
-        - alembic.ini
+        - generate_sample_dataset.py
     envVars:
       - key: DATABASE_URL
         fromDatabase:
