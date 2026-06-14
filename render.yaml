@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: rampup-backend
+    env: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    buildFilter:
+      paths:
+        - app/**
+        - pyproject.toml
+        - uv.lock
+        - alembic.ini
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rampup-db
+          property: connectionString
+      - key: LLM_PROVIDER
+        value: azure
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_API_VERSION
+        value: 2024-02-15-preview
+      - key: AZURE_OPENAI_EMBEDDING_DEPLOYMENT
+        sync: false
+      - key: AZURE_OPENAI_CHAT_DEPLOYMENT
+        sync: false
+
+  - type: web
+    name: rampup-frontend
+    env: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    buildFilter:
+      paths:
+        - frontend/**
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: rampup-backend
+          property: host
+
+databases:
+  - name: rampup-db
+    databaseName: rampup
+    user: rampup
+    plan: starter
+    region: oregon
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Everywhere (development only)
