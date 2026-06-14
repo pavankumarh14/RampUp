@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: rampup-backend
+    name: rampup
     env: docker
     region: oregon
     plan: starter
@@ -8,6 +8,7 @@ services:
     buildFilter:
       paths:
         - app/**
+        - frontend/**
         - pyproject.toml
         - uv.lock
         - generate_sample_dataset.py
@@ -17,7 +18,9 @@ services:
           name: rampup-db
           property: connectionString
       - key: LLM_PROVIDER
-        value: azure
+        value: groq
+      - key: GROQ_EMBEDDING_PROVIDER
+        value: gemini
       - key: AZURE_OPENAI_ENDPOINT
         sync: false
       - key: AZURE_OPENAI_API_KEY
@@ -34,23 +37,6 @@ services:
         sync: false
       - key: GROQ_API_KEY
         sync: false
-
-  - type: web
-    name: rampup-frontend
-    env: docker
-    region: oregon
-    plan: starter
-    dockerfilePath: ./frontend/Dockerfile
-    dockerContext: ./frontend
-    buildFilter:
-      paths:
-        - frontend/**
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: rampup-backend
-          property: host
 
 databases:
   - name: rampup-db

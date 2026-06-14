@@ -1,5 +1,15 @@
-# Stage 1: Builder
-FROM python:3.11-slim AS builder
+# Stage 1: Build Frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN npm install -g pnpm
+RUN pnpm install
+COPY frontend/ ./
+RUN pnpm build
+
+# Stage 2: Build Backend
+FROM python:3.11-slim AS backend-builder
 
 WORKDIR /app
 
@@ -19,17 +29,20 @@ COPY pyproject.toml uv.lock ./
 # Install dependencies
 RUN uv sync --no-dev
 
-# Stage 2: Final
+# Stage 3: Final
 FROM python:3.11-slim
 
 WORKDIR /app
 
 # Copy virtual environment from builder
-COPY --from=builder /app/.venv /app/.venv
+COPY --from=backend-builder /app/.venv /app/.venv
 
 # Copy application code
 COPY app /app/app
 COPY generate_sample_dataset.py /app/generate_sample_dataset.py
+
+# Copy built frontend from frontend-builder
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH"
