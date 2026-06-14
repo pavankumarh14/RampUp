@@ -1,5 +1,7 @@
+import asyncio
 import structlog
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy import text
 
 from app.config.settings import settings
 
@@ -22,14 +24,37 @@ class DatabaseManager:
         elif url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
 
-        self.engine = create_async_engine(
-            url,
-            echo=(settings.APP_ENV == "development"),
-            pool_size=10,
-            max_overflow=20,
-            pool_pre_ping=True,
-        )
-        logger.info("database.initialized", url=url.split("@")[-1])  # log host only
+        logger.info("database.connecting", url=url.split("@")[-1])  # log host only
+
+        retry_count = 0
+        max_retries = 5
+        retry_delay = 2
+        while retry_count < max_retries:
+            try:
+                self.engine = create_async_engine(
+                    url,
+                    echo=(settings.APP_ENV == "development"),
+                    pool_size=10,
+                    max_overflow=20,
+                    pool_pre_ping=True,
+                )
+
+                # Try a simple query to verify connection
+                async with self.engine.connect() as conn:
+                    await conn.execute(text("SELECT 1"))
+                    await conn.commit()
+
+                logger.info("database.initialized", url=url.split("@")[-1])
+                break
+
+            except Exception as e:
+                retry_count += 1
+                if retry_count < max_retries:
+                    logger.warning("database.connection.failed", error=str(e), retry_count=retry_count, max_retries=max_retries)
+                    await asyncio.sleep(retry_delay)
+                else:
+                    logger.error("database.connection.failed.final", error=str(e))
+                    raise
 
     async def close(self) -> None:
         """Dispose the engine and release all connections."""

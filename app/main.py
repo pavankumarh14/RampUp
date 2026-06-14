@@ -19,6 +19,17 @@ logger = structlog.get_logger(__name__)
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Manage application startup and shutdown lifecycle."""
     # ----- startup -----
+    # Log DATABASE_URL (without password)
+    safe_url = settings.DATABASE_URL
+    # Hide password if present
+    if "@" in safe_url:
+        protocol, rest = safe_url.split("@", 1)
+        if "://" in protocol:
+            scheme, userinfo = protocol.split("://", 1)
+            if ":" in userinfo:
+                username, _ = userinfo.split(":", 1)
+                safe_url = f"{scheme}://{username}:***@{rest}"
+    logger.info("database.url", url=safe_url)
     logger.info("rampup.startup", env=settings.APP_ENV)
     await db_manager.initialize()
     build_session_maker()
