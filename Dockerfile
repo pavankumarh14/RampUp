@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 ADD https://astral.sh/uv/install.sh /install.sh
 RUN chmod +x /install.sh && /install.sh
 
+# Add uv to PATH
+ENV PATH="/root/.local/bin:$PATH"
+
 # Copy requirements
 COPY pyproject.toml uv.lock ./
 
