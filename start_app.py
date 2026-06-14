@@ -34,7 +34,7 @@ async def main():
     # Step 1: Run Alembic migrations
     print("\n📊 Running Alembic migrations...")
     migrations_ok = run_command([
-        "uv", "run", "alembic", 
+        "alembic", 
         "-c", "app/alembic.ini", 
         "upgrade", "head"
     ])
@@ -62,7 +62,7 @@ async def main():
     # Step 3: Start the FastAPI server
     print("\n🌐 Starting FastAPI server...")
     server_cmd = [
-        "uv", "run", "uvicorn", 
+        "uvicorn", 
         "app.main:app", 
         "--host", "0.0.0.0", 
         "--port", "8000"

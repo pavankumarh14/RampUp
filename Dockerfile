@@ -48,9 +48,10 @@ COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 ENV LOAD_SAMPLE_DATA=true
+ENV VIRTUAL_ENV="/app/.venv"
 
 # Expose port (Render expects this)
 EXPOSE 8000
 
 # Run the startup script
-CMD ["uv", "run", "python", "start_app.py"]
+CMD ["python", "start_app.py"]
