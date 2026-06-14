@@ -30,6 +30,26 @@ class EmbeddingService:
                     base_url=_GEMINI_BASE_URL,
                     api_key=settings.GEMINI_API_KEY,
                 )
+            elif provider == "groq":
+                # Use either OpenAI or Gemini for embeddings when using Groq
+                embedding_provider = settings.GROQ_EMBEDDING_PROVIDER.lower()
+                if embedding_provider == "openai":
+                    if not settings.OPENAI_API_KEY:
+                        raise ValueError(
+                            "OPENAI_API_KEY is required when using LLM_PROVIDER=groq and GROQ_EMBEDDING_PROVIDER=openai"
+                        )
+                    self._client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+                elif embedding_provider == "gemini":
+                    if not settings.GEMINI_API_KEY:
+                        raise ValueError(
+                            "GEMINI_API_KEY is required when using LLM_PROVIDER=groq and GROQ_EMBEDDING_PROVIDER=gemini"
+                        )
+                    self._client = AsyncOpenAI(
+                        base_url=_GEMINI_BASE_URL,
+                        api_key=settings.GEMINI_API_KEY,
+                    )
+                else:
+                    raise ValueError(f"Invalid GROQ_EMBEDDING_PROVIDER: {embedding_provider} (must be 'openai' or 'gemini')")
             else:
                 self._client = AsyncAzureOpenAI(
                     azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
@@ -44,6 +64,13 @@ class EmbeddingService:
             return settings.OPENAI_EMBEDDING_MODEL
         if provider == "gemini":
             return settings.GEMINI_EMBEDDING_MODEL
+        if provider == "groq":
+            embedding_provider = settings.GROQ_EMBEDDING_PROVIDER.lower()
+            if embedding_provider == "openai":
+                return settings.GROQ_EMBEDDING_MODEL
+            elif embedding_provider == "gemini":
+                return settings.GEMINI_EMBEDDING_MODEL
+            return settings.GROQ_EMBEDDING_MODEL
         return settings.AZURE_OPENAI_EMBEDDING_DEPLOYMENT
 
     async def embed_text(self, text: str) -> list[float]:

@@ -113,12 +113,14 @@ Key variables:
 | Variable | Example |
 |---|---|
 | `DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/rampup` |
-| `LLM_PROVIDER` | `azure` \| `openai` \| `gemini` |
+| `LLM_PROVIDER` | `azure` \| `openai` \| `gemini` \| `groq` |
 | `AZURE_OPENAI_ENDPOINT` | `https://your-resource.openai.azure.com/` |
 | `AZURE_OPENAI_API_KEY` | your key (if using `azure` provider) |
 | `AZURE_OPENAI_EMBEDDING_DEPLOYMENT` | embedding deployment name (default: `text-embedding-3-large`) |
-| `OPENAI_API_KEY` | your key (if using `openai` provider) |
+| `OPENAI_API_KEY` | your key (if using `openai` OR `groq` (for embeddings)) |
 | `GEMINI_API_KEY` | your key (if using `gemini` provider) |
+| `GROQ_API_KEY` | your key (if using `groq` provider) |
+| `GROQ_EMBEDDING_PROVIDER` | "openai" or "gemini" (for embeddings when using `groq`) |
 
 ### 3. Run database migrations
 
@@ -203,12 +205,25 @@ This project is ready for one-click deployment on Render!
 3. Connect your forked repository
 4. Follow the steps to deploy
 5. After deployment, set the required environment variables in the Render dashboard for the `rampup-backend` service:
-   - AZURE_OPENAI_ENDPOINT
-   - AZURE_OPENAI_API_KEY
-   - AZURE_OPENAI_API_VERSION (optional, defaults to 2024-02-15-preview)
-   - AZURE_OPENAI_EMBEDDING_DEPLOYMENT
-   - AZURE_OPENAI_CHAT_DEPLOYMENT
-   - (Or set LLM_PROVIDER to openai/gemini and corresponding keys)
+   - Choose `LLM_PROVIDER`: "azure", "openai", "gemini", or "groq"
+   - If Azure:
+     - `AZURE_OPENAI_ENDPOINT`
+     - `AZURE_OPENAI_API_KEY`
+     - `AZURE_OPENAI_EMBEDDING_DEPLOYMENT`
+     - `AZURE_OPENAI_CHAT_DEPLOYMENT`
+   - If OpenAI:
+     - `OPENAI_API_KEY`
+     - `OPENAI_CHAT_MODEL` (optional)
+     - `OPENAI_EMBEDDING_MODEL` (optional)
+   - If Gemini:
+     - `GEMINI_API_KEY`
+     - `GEMINI_CHAT_MODEL` (optional)
+     - `GEMINI_EMBEDDING_MODEL` (optional)
+   - If Groq:
+     - `GROQ_API_KEY`
+     - `OPENAI_API_KEY` (for embeddings)
+     - `GROQ_CHAT_MODEL` (optional)
+     - `GROQ_EMBEDDING_MODEL` (optional)
 
 6. (Optional but Recommended) Load Sample Data:
    - Open the Render Dashboard → `rampup-backend` service → Shell

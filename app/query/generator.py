@@ -10,6 +10,7 @@ from app.config.settings import settings
 logger = structlog.get_logger(__name__)
 
 _GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+_GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 Confidence = Literal["high", "partial", "not_found"]
 
@@ -48,6 +49,11 @@ class AnswerGenerator:
                     base_url=_GEMINI_BASE_URL,
                     api_key=settings.GEMINI_API_KEY,
                 )
+            elif provider == "groq":
+                self._client = AsyncOpenAI(
+                    base_url=_GROQ_BASE_URL,
+                    api_key=settings.GROQ_API_KEY,
+                )
             else:
                 self._client = AsyncAzureOpenAI(
                     azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
@@ -62,6 +68,8 @@ class AnswerGenerator:
             return settings.OPENAI_CHAT_MODEL
         if provider == "gemini":
             return settings.GEMINI_CHAT_MODEL
+        if provider == "groq":
+            return settings.GROQ_CHAT_MODEL
         return settings.AZURE_OPENAI_CHAT_DEPLOYMENT
 
     @staticmethod

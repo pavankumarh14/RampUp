@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql://username:password@localhost:5432/rampup"
 
-    # LLM provider selection: "azure" | "openai" | "gemini"
+    # LLM provider selection: "azure" | "openai" | "gemini" | "groq"
     LLM_PROVIDER: str = "azure"
 
     # Azure OpenAI
@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_CHAT_MODEL: str = "gemini-1.5-pro"
     GEMINI_EMBEDDING_MODEL: str = "text-embedding-004"
+
+    # Groq (uses OpenAI-compatible endpoint)
+    GROQ_API_KEY: str = ""
+    GROQ_CHAT_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_EMBEDDING_PROVIDER: str = "openai"  # "openai" or "gemini"
+    GROQ_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
     # MS Graph API
     AZURE_TENANT_ID: str = ""
