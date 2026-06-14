@@ -3,6 +3,9 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
+# Install curl (required for uv install script)
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Install uv
 ADD https://astral.sh/uv/install.sh /install.sh
 RUN chmod +x /install.sh && /install.sh
