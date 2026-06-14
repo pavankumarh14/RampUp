@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     # Gemini (uses OpenAI-compatible endpoint)
     GEMINI_API_KEY: str = ""
     GEMINI_CHAT_MODEL: str = "gemini-1.5-pro"
-    GEMINI_EMBEDDING_MODEL: str = "text-embedding-004"
+    GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
     # Groq (uses OpenAI-compatible endpoint)
     GROQ_API_KEY: str = ""
